@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COLORA QR Studio</title>
+  <meta name="description" content="Tạo mã QR COLORA không giới hạn lượt quét." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  <style>
+    :root{
+      --bg:#f6f4ef;
+      --card:#ffffff;
+      --text:#151515;
+      --muted:#6f6f6f;
+      --line:#e7e2d9;
+      --accent:#1f5f74;
+      --accent-2:#e8f0f3;
+      --danger:#b42318;
+      --shadow:0 22px 70px rgba(27,32,36,.10);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(31,95,116,.10), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(31,95,116,.06), transparent 36%),
+        var(--bg);
+      color:var(--text);
+    }
+    .shell{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      padding:44px 0 60px;
+    }
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      margin-bottom:28px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .brand-mark{
+      width:48px;height:48px;border-radius:16px;
+      display:grid;place-items:center;
+      background:var(--text);color:white;
+      font-family:"Playfair Display",serif;
+      font-size:28px;font-weight:700;
+      box-shadow:0 12px 30px rgba(0,0,0,.12);
+    }
+    .brand h1{margin:0;font-family:"Playfair Display",serif;font-size:30px;letter-spacing:.02em}
+    .brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+    .badge{
+      padding:10px 14px;border:1px solid var(--line);border-radius:999px;
+      background:rgba(255,255,255,.65);color:var(--muted);font-size:13px;
+      backdrop-filter: blur(10px);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(0, 1.08fr) minmax(360px,.92fr);
+      gap:24px;
+      align-items:stretch;
+    }
+    .panel{
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(255,255,255,.8);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:28px;
+      backdrop-filter: blur(16px);
+    }
+    .panel h2{
+      margin:0 0 8px;
+      font-size:20px;
+    }
+    .sub{margin:0 0 24px;color:var(--muted);line-height:1.6;font-size:14px}
+    label{
+      display:block;
+      font-size:13px;
+      font-weight:600;
+      margin:0 0 8px;
+    }
+    input, select{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:14px;
+      padding:13px 14px;
+      outline:none;
+      font:inherit;
+      transition:.2s ease;
+    }
+    input:focus,select:focus{
+      border-color:rgba(31,95,116,.6);
+      box-shadow:0 0 0 4px rgba(31,95,116,.10);
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    .field{margin-bottom:16px}
+    .url-wrap{
+      display:flex;gap:10px;
+    }
+    .url-wrap input{flex:1}
+    .btn{
+      border:0;
+      border-radius:14px;
+      padding:13px 16px;
+      cursor:pointer;
+      font:inherit;
+      font-weight:700;
+      transition:transform .15s ease, opacity .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn-primary{
+      background:var(--text);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(0,0,0,.14);
+    }
+    .btn-soft{
+      background:var(--accent-2);
+      color:var(--accent);
+    }
+    .btn-outline{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+    .preview{
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    #qr{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:360px;
+      padding:24px;
+      border:1px dashed var(--line);
+      border-radius:24px;
+      background:
+        linear-gradient(45deg, #fbfbfb 25%, transparent 25%) 0 0/18px 18px,
+        linear-gradient(-45deg, #fbfbfb 25%, transparent 25%) 0 9px/18px 18px,
+        linear-gradient(45deg, transparent 75%, #fbfbfb 75%) 9px -9px/18px 18px,
+        linear-gradient(-45deg, transparent 75%, #fbfbfb 75%) -9px 0/18px 18px,
+        #fff;
+    }
+    #qr canvas, #qr svg{max-width:100%;height:auto !important}
+    .status{
+      width:100%;
+      margin-top:16px;
+      border-radius:16px;
+      padding:13px 14px;
+      background:#f8faf9;
+      color:#3f4a44;
+      font-size:13px;
+      line-height:1.5;
+      text-align:left;
+    }
+    .status strong{color:var(--text)}
+    .hint{
+      margin-top:20px;
+      padding:18px;
+      border-radius:18px;
+      background:#faf8f4;
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+    }
+    .hint b{color:var(--text)}
+    .error{
+      min-height:20px;
+      margin-top:7px;
+      font-size:12px;
+      color:var(--danger);
+    }
+    .logo-upload{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .file{
+      padding:11px 12px;
+      font-size:12px;
+    }
+    footer{
+      margin-top:22px;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+    }
+    @media (max-width: 900px){
+      header{align-items:flex-start;flex-direction:column}
+      .grid{grid-template-columns:1fr}
+      .preview{min-height:560px}
+    }
+    @media (max-width: 560px){
+      .shell{width:min(100% - 20px,1180px);padding-top:22px}
+      .panel{padding:20px;border-radius:22px}
+      .row,.toolbar{grid-template-columns:1fr}
+      .url-wrap{flex-direction:column}
+      .badge{display:none}
+      #qr{min-height:310px}
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">C</div>
+        <div>
+          <h1>COLORA QR Studio</h1>
+          <p>Tạo QR trực tiếp · Không giới hạn lượt quét</p>
+        </div>
+      </div>
+      <div class="badge">Static Direct QR · Unlimited Scans</div>
+    </header>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Tạo mã QR</h2>
+        <p class="sub">
+          Nhập đường link cần dẫn tới. QR được mã hóa trực tiếp trên trình duyệt, không qua hệ thống trung gian.
+        </p>
+
+        <div class="field">
+          <label for="url">Đường link</label>
+          <div class="url-wrap">
+            <input id="url" type="url" placeholder="https://colora.vn/..." value="https://colora.vn/" />
+            <button class="btn btn-primary" id="generateBtn">Tạo QR</button>
+          </div>
+          <div class="error" id="urlError"></div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="size">Kích thước</label>
+            <select id="size">
+              <option value="600">600 × 600 px</option>
+              <option value="800" selected>800 × 800 px</option>
+              <option value="1000">1000 × 1000 px</option>
+              <option value="1200">1200 × 1200 px</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="dotStyle">Kiểu module</label>
+            <select id="dotStyle">
+              <option value="rounded" selected>Bo tròn</option>
+              <option value="dots">Chấm tròn</option>
+              <option value="classy-rounded">Classy Rounded</option>
+              <option value="square">Vuông</option>
+              <option value="extra-rounded">Extra Rounded</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="fg">Màu QR</label>
+            <input id="fg" type="color" value="#151515" />
+          </div>
+          <div class="field">
+            <label for="bg">Màu nền</label>
+            <input id="bg" type="color" value="#ffffff" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="logoFile">Logo / ký hiệu COLORA ở giữa</label>
+          <div class="logo-upload">
+            <input class="file" id="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+            <button class="btn btn-soft" id="resetLogoBtn" type="button">Dùng dấu C</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="logoSize">Độ lớn logo</label>
+            <select id="logoSize">
+              <option value="0.16">Nhỏ</option>
+              <option value="0.20" selected>Vừa</option>
+              <option value="0.24">Lớn</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="margin">Viền trắng QR</label>
+            <select id="margin">
+              <option value="16">Mỏng</option>
+              <option value="26" selected>Vừa</option>
+              <option value="36">Rộng</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hint">
+          <b>Vì sao quét không giới hạn?</b><br>
+          Đây là QR tĩnh (static QR): link được chứa trực tiếp trong mã QR. Không có server đếm lượt, không có subscription, không có ngày hết hạn.
+          Nếu bạn đổi URL đích sau này, bạn cần tạo QR mới. Muốn giữ nguyên một QR nhưng thay link về sau thì cần thêm hệ thống redirect/dynamic QR.
+        </div>
+      </div>
+
+      <div class="panel preview">
+        <div id="qr"></div>
+
+        <div class="toolbar">
+          <button class="btn btn-primary" id="downloadPng">Tải PNG</button>
+          <button class="btn btn-outline" id="downloadSvg">Tải SVG</button>
+        </div>
+
+        <div class="status" id="status">
+          <strong>Đích:</strong> <span id="currentUrl">https://colora.vn/</span><br>
+          <strong>Kiểu:</strong> Static direct QR · Error correction H
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      COLORA QR Studio · QR được tạo cục bộ trên trình duyệt.
+    </footer>
+  </main>
+
+<script>
+  const defaultLogoSvg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="150" fill="#151515"/>
+    <text x="256" y="335" text-anchor="middle"
+      font-family="Georgia, 'Times New Roman', serif"
+      font-size="300" font-weight="700" fill="#ffffff">C</text>
+  </svg>`;
+  const defaultLogo = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(defaultLogoSvg)));
+
+  let currentLogo = defaultLogo;
+
+  const $ = (id) => document.getElementById(id);
+
+  const qr = new QRCodeStyling({
+    width: 800,
+    height: 800,
+    type: "svg",
+    data: $("url").value,
+    image: currentLogo,
+    margin: 26,
+    qrOptions: { errorCorrectionLevel: "H" },
+    imageOptions: {
+      crossOrigin: "anonymous",
+      margin: 10,
+      imageSize: 0.20,
+      hideBackgroundDots: true
+    },
+    dotsOptions: { color: "#151515", type: "rounded" },
+    backgroundOptions: { color: "#ffffff" },
+    cornersSquareOptions: { type: "extra-rounded", color: "#151515" },
+    cornersDotOptions: { type: "dot", color: "#151515" }
+  });
+
+  qr.append($("qr"));
+
+  function normalizeUrl(value){
+    let v = value.trim();
+    if (!v) return "";
+    if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+    return v;
+  }
+
+  function isValidHttpUrl(value){
+    try{
+      const u = new URL(value);
+      return u.protocol === "http:" || u.protocol === "https:";
+    }catch{
+      return false;
+    }
+  }
+
+  function updateQR(){
+    const raw = $("url").value;
+    const url = normalizeUrl(raw);
+
+    if(!url || !isValidHttpUrl(url)){
+      $("urlError").textContent = "Vui lòng nhập một đường link hợp lệ, ví dụ: https://colora.vn/product/abc";
+      return false;
+    }
+
+    $("urlError").textContent = "";
+    if ($("url").value !== url) $("url").value = url;
+
+    const size = Number($("size").value);
+    const fg = $("fg").value;
+    const bg = $("bg").value;
+    const margin = Number($("margin").value);
+    const logoSize = Number($("logoSize").value);
+    const dotStyle = $("dotStyle").value;
+
+    qr.update({
+      width: size,
+      height: size,
+      data: url,
+      image: currentLogo,
+      margin,
+      qrOptions: { errorCorrectionLevel: "H" },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: Math.max(8, Math.round(size * 0.012)),
+        imageSize: logoSize,
+        hideBackgroundDots: true
+      },
+      dotsOptions: { color: fg, type: dotStyle },
+      backgroundOptions: { color: bg },
+      cornersSquareOptions: { type: "extra-rounded", color: fg },
+      cornersDotOptions: { type: "dot", color: fg }
+    });
+
+    $("currentUrl").textContent = url;
+    return true;
+  }
+
+  $("generateBtn").addEventListener("click", updateQR);
+  $("url").addEventListener("keydown", (e) => {
+    if(e.key === "Enter") updateQR();
+  });
+
+  ["size","fg","bg","margin","logoSize","dotStyle"].forEach(id => {
+    $(id).addEventListener("change", updateQR);
+    if($(id).type === "color") $(id).addEventListener("input", updateQR);
+  });
+
+  $("logoFile").addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      currentLogo = reader.result;
+      updateQR();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  $("resetLogoBtn").addEventListener("click", () => {
+    currentLogo = defaultLogo;
+    $("logoFile").value = "";
+    updateQR();
+  });
+
+  $("downloadPng").addEventListener("click", () => {
+    if(updateQR()) qr.download({ name: "colora-qr", extension: "png" });
+  });
+
+  $("downloadSvg").addEventListener("click", () => {
+    if(updateQR()) qr.download({ name: "colora-qr", extension: "svg" });
+  });
+</script>
+</body>
+</html>
